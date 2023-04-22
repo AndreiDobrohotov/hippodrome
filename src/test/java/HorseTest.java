@@ -1,13 +1,11 @@
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,34 +13,30 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ExtendWith(MockitoExtension.class)
 public class HorseTest {
 
-    public static List<String> getEmpties() {
-        return List.of(" ","","\n","\r");
-    }
-
     @Test
-    public void firstParamIsNull(){
+    public void nameParamIsNull(){
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> new Horse(null,0));
         assertEquals("Name cannot be null.",exception.getMessage());
     }
 
     @ParameterizedTest
-    @MethodSource("getEmpties")
-    public void firstParamIsBlank(String blank){
+    @ValueSource(strings = {" ","","\n","\r","   "})
+    public void nameParamIsBlank(String blank){
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> new Horse(blank,0));
         assertEquals("Name cannot be blank.",exception.getMessage());
     }
 
     @Test
-    public void secondParamIsNegative(){
+    public void speedParamIsNegative(){
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> new Horse("test",-1));
         assertEquals("Speed cannot be negative.",exception.getMessage());
     }
 
     @Test
-    public void thirdParamIsNegative(){
+    public void distanceParamIsNegative(){
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> new Horse("test",0,-1));
         assertEquals("Distance cannot be negative.",exception.getMessage());
@@ -50,8 +44,8 @@ public class HorseTest {
 
     @Test
     public void getName(){
-        String text = "test";
-        assertEquals(text, new Horse(text,0).getName());
+        String name = "test";
+        assertEquals(name, new Horse(name,0).getName());
     }
 
     @Test
@@ -62,19 +56,23 @@ public class HorseTest {
 
     @Test
     public void getDistance(){
-        assertEquals(1, new Horse("test",0,1).getDistance());
-        assertEquals(0,new Horse("test",0).getDistance());
+        assertEquals(22, new Horse("test",0,22).getDistance());
     }
 
-    //@Test
+    @Test
+    public void getZeroDistance(){
+        assertEquals(0,new Horse("test",3).getDistance());
+    }
+
     @ParameterizedTest
     @ValueSource(doubles = {0.2, 0.5, 0.9})
     public void move(double random){
         try(MockedStatic<Horse> staticHorse = Mockito.mockStatic(Horse.class)){
             staticHorse.when(() -> Horse.getRandomDouble(0.2,0.9)).thenReturn(random);
             double speed = 3;
-            double result = speed*random;
-            Horse horse = new Horse("test",speed);
+            double distance = 5;
+            double result = speed*random+distance;
+            Horse horse = new Horse("test",speed,distance);
             horse.move();
             assertEquals(result, horse.getDistance());
             staticHorse.verify(()-> Horse.getRandomDouble(0.2,0.9));

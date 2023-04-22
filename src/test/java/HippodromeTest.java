@@ -33,9 +33,7 @@ public class HippodromeTest {
             horses.add(new Horse("test"+i,1));
         }
         Hippodrome hippodrome = new Hippodrome(horses);
-        for(int i=0;i<30;i++){
-            assertEquals(horses.get(i),hippodrome.getHorses().get(i));
-        }
+        assertEquals(horses,hippodrome.getHorses());
     }
 
     @Test
@@ -46,8 +44,8 @@ public class HippodromeTest {
         }
         Hippodrome hippodrome = new Hippodrome(horses);
         hippodrome.move();
-        for(int i=0;i<50;i++){
-            Mockito.verify(hippodrome.getHorses().get(i)).move();
+        for(Horse horse: hippodrome.getHorses()){
+            Mockito.verify(horse).move();
         }
     }
 
@@ -56,7 +54,7 @@ public class HippodromeTest {
     public void getWinner(int index){
         List<Horse> horses = new ArrayList<>();
         for(int i=0;i<10;i++){
-            horses.add(new Horse("test"+i,0,i==index?1:0));
+            horses.add(new Horse("test"+i,i,i==index?100:i));
         }
         Hippodrome hippodrome = new Hippodrome(horses);
         assertEquals(horses.get(index),hippodrome.getWinner());
